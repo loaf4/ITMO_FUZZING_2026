@@ -1,11 +1,16 @@
 package org.itmo.fuzzing.lab1;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.itmo.fuzzing.lect2.FunctionRunner;
 import org.itmo.fuzzing.lect3.AFLFastSchedule;
 import org.itmo.fuzzing.lect3.AdvancedMutationFuzzer;
 import org.itmo.fuzzing.lect3.CountingGreyboxFuzzer;
 import org.itmo.fuzzing.lect3.GreyBoxFuzzer;
 import org.itmo.fuzzing.lect3.PowerSchedule;
+import org.itmo.fuzzing.lect3.DirectedSchedule;
 import org.itmo.fuzzing.lect3.Seed;
 
 /**
@@ -95,8 +100,56 @@ public final class MazeFuzzer {
      *
      * @param args параметры запуска в выбранном вами формате
      */
-    public static void main(String[] args) {
-        // TODO: настроить и запустить dumb black-box, coverage-guided и directed режимы.
-        throw new UnsupportedOperationException("Реализуйте фаззеры первой лабораторной работы");
+    public static void main(String[] args) throws java.io.IOException {
+        int budget = 100_000;
+        List<String> corpus = List.of("D");
+        MazeMutator mutator = new MazeMutator();
+        FunctionRunner runner = new FunctionRunner(MazeGenerated::maze);
+
+        AdvancedMutationFuzzer blackBoxFuzzer = new AdvancedMutationFuzzer(corpus, mutator, new PowerSchedule(), 1, 1);
+        runOnce(blackBoxFuzzer, runner, budget);
+
+        // GreyBoxFuzzer greyBoxFuzzer = new GreyBoxFuzzer(corpus, mutator, new PowerSchedule(), 1, 1);
+        // runOnce(greyBoxFuzzer, runner, budget);
+
+        // Map<String, Integer> distances = AstCallGraph.distancesTo(
+        //         AstCallGraph.build(AstCallGraph.MAZE_SOURCE), MazeGenerated.targetTile());
+        // GreyBoxFuzzer directedFuzzer = new GreyBoxFuzzer(corpus, mutator, new DirectedSchedule(distances), 1, 1);
+        // runOnce(directedFuzzer, runner, budget);
+    }
+
+    private static int runOnce(AdvancedMutationFuzzer fuzzer, FunctionRunner runner, int budget) {
+        Map<String, Integer> stats = new LinkedHashMap<>();
+        stats.put("INVALID", 0);
+        stats.put("VALID", 0);
+        stats.put("SOLVED", 0);
+        long start = System.nanoTime();
+
+        for (int i = 1; i <= budget; ++i) {
+            String input = fuzzer.fuzz();
+            Object res = fuzzer.run(runner, input);
+            String status = res == null ? "ERROR" : res.toString().lines().findFirst().orElse("");
+            stats.merge(status, 1, Integer::sum);
+
+            if (status.equals("SOLVED")) {
+                System.out.println("SOLVED after " + i + " runs in " + elapsedMs(start) + " ms: " + input);
+                printStats(stats);
+                return i;
+            }
+        }
+        System.out.println("Lost all budget in " + elapsedMs(start) + " ms");
+        printStats(stats);
+        return -1;
+    }
+
+    private static long elapsedMs(long startNanos) {
+        return (System.nanoTime() - startNanos) / 1_000_000;
+    }
+
+    private static void printStats(Map<String, Integer> stats) {
+        int total = stats.values().stream().mapToInt(Integer::intValue).sum();
+        System.out.println("Stats (" + total + " runs):");
+        stats.forEach((status, count) ->
+                System.out.printf("  %-8s %7d  (%.2f%%)%n", status, count, 100.0 * count / total));
     }
 }
