@@ -11,11 +11,12 @@ public class CoverageAgent {
     /**
      * Class name prefixes (in internal JVM form, e.g. {@code org/jsoup}) that get instrumented.
      * Can be overridden with a comma-separated agent argument:
-     * {@code -javaagent:coverage-agent.jar=org/jsoup,org/itmo/fuzzing/lab1}
+     * {@code -javaagent:coverage-agent.jar=org/jsoup,org/itmo/fuzzing/lab1,com/google/gson}
      */
     private static final String[] DEFAULT_INCLUDES = {
             "org/jsoup",
             "org/itmo/fuzzing/lab1",
+            "com/google/gson",
     };
 
     public static void premain(String agentArgs, Instrumentation inst) {
