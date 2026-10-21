@@ -52,26 +52,19 @@ public final class AdvancedDataGrammar {
         // Документ — один или несколько элементов, каждый на своей строке.
         put("<document>", List.of("<element>", "<element><document>"));
 
-        // TODO: элемент — пара ключ-значение, блок или комментарий.
-        //  Сейчас генерируются только пары ключ-значение.
-        put("<element>", List.of("<key_value>"));
+        put("<element>", List.of("<key_value>", "<block>", "<comment>"));
 
         put("<key_value>", List.of("<key>: <value>\n"));
 
-        // TODO: добавьте массивы. Блок значением не бывает: он отдельный элемент.
-        put("<value>", List.of("<string>", "<number>", "<boolean>"));
+        put("<value>", List.of("<string>", "<number>", "<boolean>", "<array>"));
 
-        // TODO: блок — строка "ключ {", затем вложенные элементы, затем строка "}".
-        //  Блоки могут быть вложены друг в друга.
-        // put("<block>", ...);
-        // put("<elements>", ...);
+        put("<block>", List.of("<key> {\n<elements>\n}\n"));
+        put("<elements>", List.of("<element>", "<element><elements>"));
 
-        // TODO: массив строк в квадратных скобках, элементы через запятую.
-        // put("<array>", ...);
-        // put("<array_elements>", ...);
+        put("<array>", List.of("[<array_elements>]"));
+        put("<array_elements>", List.of("<string>", "<string>, <array_elements>"));
 
-        // TODO: комментарий — "#", текст и перевод строки.
-        // put("<comment>", ...);
+        put("<comment>", List.of("# <text>\n"));
 
         // ---------- Лексика: уже готова ----------
 

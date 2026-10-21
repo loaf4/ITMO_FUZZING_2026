@@ -1,6 +1,7 @@
 package org.itmo.fuzzing.practice1;
 
 import org.itmo.fuzzing.lect6.fuzzer.GrammarFuzzer;
+import org.itmo.fuzzing.lect6.tree.DerivationTree;
 import org.itmo.fuzzing.task1.DataParser;
 
 import java.io.ByteArrayOutputStream;
@@ -68,7 +69,9 @@ public final class AdvancedDataFuzzer {
      * <p>TODO: постройте дерево вывода от стартового символа, раскройте его и верните строку.</p>
      */
     static String generate(GrammarFuzzer fuzzer) {
-        throw new UnsupportedOperationException("TODO: реализуйте генерацию документа");
+        DerivationTree tree = fuzzer.initTree();
+        tree = fuzzer.expandTree(tree);
+        return tree.treeToString();
     }
 
     public static void main(String[] args) throws Exception {

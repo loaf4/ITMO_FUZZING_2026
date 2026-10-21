@@ -122,9 +122,9 @@ public class GrammarFuzzer {
     public DerivationTreeNode expandNodeRandomly(DerivationTreeNode node) {
         assert node.getChildren() == null;
 
-//        if (log) {
-//            System.out.println("Expanding " + node.allTerminals() + " randomly");
-//        }
+       if (log) {
+           System.out.println("Expanding " + node.allTerminals() + " randomly");
+       }
 
         List<Expansion> expansions = grammar.rules.get(node.getValue());
         List<List<DerivationTreeNode>> childrenAlternatives = new ArrayList<>();
